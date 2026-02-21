@@ -8,19 +8,27 @@ interface Props {
 export default function PriceDisplay({ estimate }: Props) {
   const { minPrice, maxPrice, currency, estimatedHours } = estimate;
   return (
-    <div className="text-center space-y-2 py-6">
-      <p className="text-zinc-400 text-sm uppercase tracking-widest">Estimare preț</p>
+    <div
+      className="rounded-xl p-6 text-center space-y-3"
+      style={{
+        background: "linear-gradient(135deg, #e6f4fe 0%, #f0f8ff 100%)",
+        border: "1px solid #c5e0fc",
+      }}
+    >
+      <p className="text-sm font-medium uppercase tracking-widest" style={{ color: "#0090ff" }}>
+        Estimare preț
+      </p>
       <div className="flex items-baseline justify-center gap-2 flex-wrap">
-        <span className="text-5xl font-bold text-yellow-400">
+        <span className="font-bold" style={{ color: "#113264", fontSize: "clamp(2rem, 8vw, 3rem)" }}>
           {minPrice.toLocaleString("ro-RO")}
         </span>
-        <span className="text-3xl text-zinc-500">—</span>
-        <span className="text-5xl font-bold text-yellow-400">
+        <span className="text-2xl" style={{ color: "#65636d" }}>—</span>
+        <span className="font-bold" style={{ color: "#113264", fontSize: "clamp(2rem, 8vw, 3rem)" }}>
           {maxPrice.toLocaleString("ro-RO")}
         </span>
-        <span className="text-2xl text-yellow-600 ml-1">{currency}</span>
+        <span className="text-xl font-medium ml-1" style={{ color: "#0090ff" }}>{currency}</span>
       </div>
-      <p className="text-zinc-500 text-sm">~{estimatedHours}h lucru estimat</p>
+      <p className="text-sm" style={{ color: "#65636d" }}>~{estimatedHours}h lucru estimat</p>
     </div>
   );
 }

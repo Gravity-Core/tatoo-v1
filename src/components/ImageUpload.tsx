@@ -80,11 +80,11 @@ export default function ImageUpload({ images, onChange }: Props) {
           setIsDragging(false);
           handleFiles(e.dataTransfer.files);
         }}
-        className={`relative border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${
-          isDragging
-            ? "border-yellow-500/70 bg-yellow-500/5"
-            : "border-zinc-700 hover:border-zinc-500 bg-zinc-900/40"
-        }`}
+        className="relative border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors"
+        style={{
+          borderColor: isDragging ? "#0090ff" : "#eae7ec",
+          backgroundColor: isDragging ? "#e6f4fe" : "#fdfcfd",
+        }}
       >
         <input
           type="file"
@@ -95,7 +95,8 @@ export default function ImageUpload({ images, onChange }: Props) {
         />
         <div className="space-y-2 pointer-events-none">
           <svg
-            className="w-10 h-10 mx-auto text-zinc-500"
+            className="w-10 h-10 mx-auto"
+            style={{ color: "#0090ff" }}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -107,21 +108,22 @@ export default function ImageUpload({ images, onChange }: Props) {
               d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
-          <p className="text-zinc-300 font-medium">Încarcă imaginea tatuajului dorit</p>
-          <p className="text-zinc-500 text-sm">
+          <p className="font-medium" style={{ color: "#211f26" }}>Încarcă imaginea tatuajului dorit</p>
+          <p className="text-sm" style={{ color: "#65636d" }}>
             Trage sau apasă · JPG, PNG, WEBP · Max {MAX_SIZE_MB}MB · 1–{MAX_IMAGES} imagini
           </p>
         </div>
       </div>
 
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-sm" style={{ color: "#dc2626" }}>{error}</p>}
 
       {images.length > 0 && (
         <div className="flex gap-3 flex-wrap">
           {images.map((src, i) => (
             <div
               key={i}
-              className="relative group w-24 h-24 rounded-lg overflow-hidden border border-zinc-700"
+              className="relative group w-24 h-24 rounded-lg overflow-hidden"
+              style={{ border: "1px solid #eae7ec" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -131,7 +133,7 @@ export default function ImageUpload({ images, onChange }: Props) {
               />
               <button
                 onClick={() => remove(i)}
-                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-medium transition-opacity"
+                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-medium transition-opacity"
               >
                 Elimină
               </button>

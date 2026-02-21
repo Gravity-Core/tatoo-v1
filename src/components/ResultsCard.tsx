@@ -36,16 +36,19 @@ export default function ResultsCard({ result, placement, widthCm, heightCm }: Pr
   const { analysis, estimate } = result;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
       <PriceDisplay estimate={estimate} />
 
       {/* Breakdown */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 space-y-4">
-        <h3 className="text-sm uppercase tracking-widest text-zinc-400 font-medium">
+      <div
+        className="rounded-xl p-6 space-y-4"
+        style={{ backgroundColor: "#fff", border: "1px solid #eae7ec", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+      >
+        <h3 className="text-xs uppercase tracking-widest font-semibold" style={{ color: "#0090ff" }}>
           Detalii analiză
         </h3>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           {[
             {
               label: "Stil detectat",
@@ -69,23 +72,23 @@ export default function ResultsCard({ result, placement, widthCm, heightCm }: Pr
             },
           ].map(({ label, value }) => (
             <div key={label} className="space-y-0.5">
-              <p className="text-zinc-500 text-xs">{label}</p>
-              <p className="text-zinc-100 font-medium">{value}</p>
+              <p className="text-xs" style={{ color: "#65636d" }}>{label}</p>
+              <p className="font-medium" style={{ color: "#211f26" }}>{value}</p>
             </div>
           ))}
 
           {/* Complexity bar */}
-          <div className="col-span-2 space-y-1">
+          <div className="col-span-2 space-y-1.5">
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Complexitate</span>
-              <span className="text-zinc-300">{analysis.complexity}/10</span>
+              <span style={{ color: "#65636d" }}>Complexitate</span>
+              <span className="font-medium" style={{ color: "#113264" }}>{analysis.complexity}/10</span>
             </div>
-            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#eae7ec" }}>
               <div
                 className="h-full rounded-full"
                 style={{
                   width: `${analysis.complexity * 10}%`,
-                  background: "linear-gradient(to right, #a16207, #facc15)",
+                  background: "linear-gradient(to right, #0090ff, #113264)",
                   transition: "width 0.7s ease-out",
                 }}
               />
@@ -95,9 +98,9 @@ export default function ResultsCard({ result, placement, widthCm, heightCm }: Pr
 
         {/* AI description */}
         {analysis.description && (
-          <div className="pt-2 border-t border-zinc-800">
-            <p className="text-zinc-500 text-xs mb-1">Descriere AI</p>
-            <p className="text-zinc-300 text-sm">{analysis.description}</p>
+          <div className="pt-3" style={{ borderTop: "1px solid #eae7ec" }}>
+            <p className="text-xs mb-1" style={{ color: "#65636d" }}>Descriere AI</p>
+            <p className="text-sm" style={{ color: "#211f26" }}>{analysis.description}</p>
           </div>
         )}
 
@@ -105,27 +108,29 @@ export default function ResultsCard({ result, placement, widthCm, heightCm }: Pr
         {analysis.special_notes && (
           <div
             className="rounded-lg p-3"
-            style={{
-              background: "rgba(234,179,8,0.05)",
-              border: "1px solid rgba(234,179,8,0.2)",
-            }}
+            style={{ backgroundColor: "#e6f4fe", border: "1px solid #c5e0fc" }}
           >
-            <p className="text-yellow-400 text-xs font-medium mb-1">Note speciale</p>
-            <p className="text-zinc-300 text-sm">{analysis.special_notes}</p>
+            <p className="text-xs font-semibold mb-1" style={{ color: "#0090ff" }}>Note speciale</p>
+            <p className="text-sm" style={{ color: "#211f26" }}>{analysis.special_notes}</p>
           </div>
         )}
       </div>
 
       {/* Disclaimer */}
-      <p className="text-zinc-600 text-xs text-center">
+      <p className="text-xs text-center" style={{ color: "#a09fa6" }}>
         Aceasta este o estimare orientativă. Prețul final va fi stabilit la consultație.
       </p>
 
       {/* CTA */}
       <a
         href="#contact"
-        className="block w-full text-center py-3 rounded-xl text-yellow-400 font-medium transition-colors hover:bg-yellow-500/10"
-        style={{ border: "1px solid rgba(201,168,76,0.4)" }}
+        className="block w-full text-center py-3 rounded-lg font-medium text-sm transition-colors"
+        style={{
+          backgroundColor: "#0090ff",
+          color: "#fff",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0070d4")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0090ff")}
       >
         Programează o consultație
       </a>

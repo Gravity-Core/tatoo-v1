@@ -21,8 +21,10 @@ export default function DimensionInput({
   onHeightChange,
 }: Props) {
   return (
-    <div className="space-y-4">
-      <label className="block text-sm font-medium text-zinc-400">Dimensiuni dorite</label>
+    <div className="space-y-3">
+      <label className="block text-sm font-medium" style={{ color: "#211f26" }}>
+        Dimensiuni dorite
+      </label>
 
       <div className="flex gap-4">
         {[
@@ -30,7 +32,7 @@ export default function DimensionInput({
           { label: "Înălțime (cm)", value: height, onChange: onHeightChange },
         ].map(({ label, value, onChange }) => (
           <div key={label} className="flex-1 space-y-1">
-            <label className="text-xs text-zinc-500">{label}</label>
+            <label className="text-xs" style={{ color: "#65636d" }}>{label}</label>
             <input
               type="number"
               min="1"
@@ -39,7 +41,15 @@ export default function DimensionInput({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder="cm"
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-zinc-100 focus:outline-none focus:border-yellow-500/60"
+              className="w-full rounded-lg px-4 py-3 text-sm"
+              style={{
+                backgroundColor: "#fdfcfd",
+                border: "1px solid #eae7ec",
+                color: "#211f26",
+                outline: "none",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#eae7ec")}
             />
           </div>
         ))}
@@ -49,7 +59,8 @@ export default function DimensionInput({
         {sizeHints.map((hint) => (
           <div
             key={hint.label}
-            className="text-xs text-zinc-600 bg-zinc-900/50 rounded px-2 py-1"
+            className="text-xs rounded px-2 py-1.5"
+            style={{ color: "#65636d", backgroundColor: "#f4f2f7" }}
           >
             {hint.label}
           </div>

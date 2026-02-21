@@ -59,15 +59,24 @@ export const placementLabels: Record<BodyPlacement, string> = Object.fromEntries
 
 export default function BodyPlacementSelector({ value, onChange }: Props) {
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-zinc-400">Zonă corp</label>
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium" style={{ color: "#211f26" }}>
+        Zonă corp
+      </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as BodyPlacement)}
-        className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-zinc-100 focus:outline-none focus:border-yellow-500/60 appearance-none cursor-pointer"
-        style={{ colorScheme: "dark" }}
+        className="w-full rounded-lg px-4 py-3 text-sm appearance-none cursor-pointer"
+        style={{
+          backgroundColor: "#fdfcfd",
+          border: "1px solid #eae7ec",
+          color: "#211f26",
+          outline: "none",
+        }}
+        onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
+        onBlur={(e) => (e.currentTarget.style.borderColor = "#eae7ec")}
       >
-        <option value="" disabled>
+        <option value="" disabled style={{ color: "#65636d" }}>
           Selectează zona corpului...
         </option>
         {placementGroups.map((group) => (
