@@ -44,9 +44,10 @@ export async function POST(req: NextRequest) {
     const response: AnalyzeResponse = { analysis, estimate };
     return NextResponse.json(response);
   } catch (err) {
-    console.error("Analysis error:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Analysis error:", message);
     return NextResponse.json(
-      { error: "Analiza a eșuat. Vă rugăm să încercați din nou." },
+      { error: "Analiza a eșuat. Vă rugăm să încercați din nou.", detail: message },
       { status: 500 }
     );
   }
