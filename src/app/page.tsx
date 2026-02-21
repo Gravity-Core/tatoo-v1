@@ -4,6 +4,7 @@ import ImageUpload from "@/components/ImageUpload";
 import BodyPlacementSelector from "@/components/BodyPlacement";
 import DimensionInput from "@/components/DimensionInput";
 import ResultsCard from "@/components/ResultsCard";
+import { useWordPressBridge } from "./useWordPressBridge";
 import type { AnalyzeResponse, BodyPlacement } from "@/lib/types";
 
 type Step = "input" | "loading" | "results";
@@ -17,6 +18,8 @@ export default function Home() {
   const [step, setStep] = useState<Step>("input");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [error, setError] = useState("");
+
+  const { scrollToTop, sendEvent } = useWordPressBridge();
 
   const canSubmit =
     images.length > 0 && placement !== "" && width !== "" && height !== "" && step === "input";
@@ -41,6 +44,19 @@ export default function Home() {
       if (!res.ok) throw new Error(data.error ?? "Eroare necunoscută");
       setResult(data);
       setStep("results");
+      scrollToTop();
+      sendEvent("estimation_complete", {
+        style: data.analysis.style,
+        complexity: data.analysis.complexity,
+        color_type: data.analysis.color_type,
+        placement,
+        widthCm: parseFloat(width),
+        heightCm: parseFloat(height),
+        estimatedPrice: data.estimate.estimatedPrice,
+        minPrice: data.estimate.minPrice,
+        maxPrice: data.estimate.maxPrice,
+        currency: data.estimate.currency,
+      });
     } catch (e) {
       setError((e as Error).message);
       setStep("input");
