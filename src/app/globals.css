@@ -29,7 +29,11 @@
 
 
 body {
-  background-color: #fdfcfd;
+  background:
+    radial-gradient(ellipse 70% 50% at 8% 0%,   rgba(0, 144, 255, 0.08) 0%, transparent 100%),
+    radial-gradient(ellipse 60% 50% at 92% 100%, rgba(17, 50, 100, 0.05) 0%, transparent 100%),
+    #fdfcfd;
+  background-attachment: fixed;
   color: #65636d;
   font-family: 'Roboto', system-ui, sans-serif;
   min-height: 100vh;
@@ -54,4 +58,17 @@ body {
   .calc-layout {
     grid-template-columns: 1fr 290px;
   }
+}
+
+/* Button press & hover animation */
+.btn-press {
+  transition: transform 0.12s ease, box-shadow 0.15s ease,
+              background-color 0.15s ease, border-color 0.15s ease;
+}
+.btn-press:hover:not(:disabled) {
+  box-shadow: 0 4px 16px rgba(0, 144, 255, 0.18);
+}
+.btn-press:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: 0 1px 5px rgba(0, 144, 255, 0.10);
 }

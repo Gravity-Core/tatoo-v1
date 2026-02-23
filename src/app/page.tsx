@@ -100,7 +100,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen" style={{ backgroundColor: "#fdfcfd" }}>
+    <main className="min-h-screen" style={{ background: "transparent" }}>
 
       {/* Hero */}
       <div className="text-center" style={{ padding: "44px 20px 28px" }}>
@@ -136,6 +136,7 @@ export default function Home() {
                     <button
                       key={opt.value}
                       onClick={() => handleSizePreset(opt.value)}
+                      className="btn-press"
                       style={{
                         padding: "13px 10px",
                         borderRadius: 12,
@@ -259,6 +260,7 @@ export default function Home() {
                     <button
                       key={zone.value}
                       onClick={() => setPlacement(zone.value)}
+                      className="btn-press"
                       style={{
                         padding: "14px 6px 10px",
                         borderRadius: 12,
@@ -313,7 +315,7 @@ export default function Home() {
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="w-full font-semibold"
+              className="w-full font-semibold btn-press"
               style={{
                 height: 54, borderRadius: 14, border: "none",
                 backgroundColor: canSubmit ? "#0090ff" : "#eae7ec",
@@ -440,7 +442,7 @@ function PricePanel({ result, onReset }: { result: AnalyzeResponse; onReset: () 
       {/* CTA */}
       <a
         href="#contact"
-        className="flex items-center justify-center font-bold"
+        className="flex items-center justify-center font-bold btn-press"
         style={{
           height: 46, borderRadius: 10,
           backgroundColor: "#0090ff", color: "#fff",
@@ -456,6 +458,7 @@ function PricePanel({ result, onReset }: { result: AnalyzeResponse; onReset: () 
       {/* Reset */}
       <button
         onClick={onReset}
+        className="btn-press"
         style={{
           width: "100%", marginTop: 10, height: 38, borderRadius: 8,
           border: "1px solid #eae7ec", backgroundColor: "transparent",
