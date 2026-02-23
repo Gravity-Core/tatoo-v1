@@ -14,22 +14,22 @@ const baseAnalysis: AIAnalysis = {
 };
 
 describe("calculatePrice", () => {
-  it("uses Small tier for 1×1 cm tattoo", () => {
+  it("uses Mic tier for 1×1 cm tattoo", () => {
     const result = calculatePrice(baseAnalysis, "forearm", 1, 1);
-    expect(result.sizeTier).toBe("Small");
+    expect(result.sizeTier).toBe("Mic");
     expect(result.currency).toBe("EUR");
     expect(result.estimatedPrice).toBeGreaterThanOrEqual(80);
   });
 
-  it("uses Medium tier for 3×3 cm tattoo", () => {
+  it("uses Mediu tier for 3×3 cm tattoo", () => {
     const result = calculatePrice(baseAnalysis, "forearm", 3, 3);
-    expect(result.sizeTier).toBe("Medium");
+    expect(result.sizeTier).toBe("Mediu");
     expect(result.estimatedPrice).toBeGreaterThanOrEqual(140);
   });
 
-  it("uses Large tier for 4×5 cm tattoo", () => {
+  it("uses Mare tier for 4×5 cm tattoo", () => {
     const result = calculatePrice(baseAnalysis, "forearm", 4, 5);
-    expect(result.sizeTier).toBe("Large");
+    expect(result.sizeTier).toBe("Mare");
     expect(result.estimatedPrice).toBeGreaterThanOrEqual(230);
   });
 

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { loadPricingConfig, savePricingConfig } from "@/lib/pricing-store";
 
-const DATA_PATH = path.join(process.cwd(), "data", "pricing.json");
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin";
 
 function checkAuth(req: NextRequest): boolean {
@@ -13,12 +11,8 @@ export async function GET(req: NextRequest) {
   if (!checkAuth(req)) {
     return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
   }
-  try {
-    const data = JSON.parse(fs.readFileSync(DATA_PATH, "utf-8"));
-    return NextResponse.json(data);
-  } catch {
-    return NextResponse.json({ error: "Config negăsit" }, { status: 500 });
-  }
+  const config = await loadPricingConfig();
+  return NextResponse.json(config);
 }
 
 export async function POST(req: NextRequest) {
@@ -27,14 +21,13 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    // Sort tiers ascending before saving
     body.tiers = [...body.tiers].sort(
       (a: { maxSqCm: number }, b: { maxSqCm: number }) => a.maxSqCm - b.maxSqCm
     );
-    fs.mkdirSync(path.dirname(DATA_PATH), { recursive: true });
-    fs.writeFileSync(DATA_PATH, JSON.stringify(body, null, 2));
+    await savePricingConfig(body);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

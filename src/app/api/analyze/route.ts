@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeTattooImages } from "@/lib/analyze";
 import { calculatePrice } from "@/lib/calculate-price";
+import { loadPricingConfig } from "@/lib/pricing-store";
 import type { AnalyzeRequest, AnalyzeResponse } from "@/lib/types";
 
 // Simple in-memory rate limiting (resets on server restart — fine for demo)
@@ -39,8 +40,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const analysis = await analyzeTattooImages(images);
-    const estimate = calculatePrice(analysis, placement, widthCm, heightCm);
+    const [analysis, pricingConfig] = await Promise.all([
+      analyzeTattooImages(images),
+      loadPricingConfig(),
+    ]);
+    const estimate = calculatePrice(analysis, placement, widthCm, heightCm, pricingConfig);
     const response: AnalyzeResponse = { analysis, estimate };
     return NextResponse.json(response);
   } catch (err) {

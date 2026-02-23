@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import type { AIAnalysis, BodyPlacement, PriceEstimate } from "./types";
 
 export interface PricingTier {
@@ -16,7 +14,7 @@ export interface PricingConfig {
   complexityMultiplier: number;
 }
 
-const defaultConfig: PricingConfig = {
+export const defaultPricingConfig: PricingConfig = {
   currency: "EUR",
   tiers: [
     { maxSqCm: 2, label: "Mic", basePrice: 80 },
@@ -28,26 +26,15 @@ const defaultConfig: PricingConfig = {
   complexityMultiplier: 0.08,
 };
 
-export function loadPricingConfig(): PricingConfig {
-  try {
-    const filePath = path.join(process.cwd(), "data", "pricing.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return defaultConfig;
-  }
-}
-
 export function calculatePrice(
   analysis: AIAnalysis,
   _placement: BodyPlacement,
   widthCm: number,
-  heightCm: number
+  heightCm: number,
+  config: PricingConfig = defaultPricingConfig
 ): PriceEstimate {
-  const config = loadPricingConfig();
   const areaSqCm = widthCm * heightCm;
 
-  // Sort tiers ascending so find works correctly
   const sortedTiers = [...config.tiers].sort((a, b) => a.maxSqCm - b.maxSqCm);
   const matchedTier = sortedTiers.find((t) => areaSqCm <= t.maxSqCm);
 
@@ -58,17 +45,12 @@ export function calculatePrice(
     basePrice = matchedTier.basePrice;
     sizeTier = matchedTier.label;
   } else {
-    // Area exceeds all tiers: charge per sq cm above the largest tier
     const lastTier = sortedTiers[sortedTiers.length - 1];
-    const overflow = areaSqCm - lastTier.maxSqCm;
-    basePrice = lastTier.basePrice + overflow * config.overflowPricePerSqCm;
+    basePrice = lastTier.basePrice + (areaSqCm - lastTier.maxSqCm) * config.overflowPricePerSqCm;
     sizeTier = "Extra Mare";
   }
 
-  // Color multiplier: color/mixed tattoos cost more
   const colorMult = analysis.color_type !== "black_grey" ? config.colorMultiplier : 1.0;
-
-  // Complexity multiplier: 5 is neutral, each point above/below adjusts price
   const complexityMult = Math.max(0.5, 1 + (analysis.complexity - 5) * config.complexityMultiplier);
 
   const estimatedPrice = Math.round(basePrice * colorMult * complexityMult);
