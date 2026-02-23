@@ -77,36 +77,34 @@ export default function Home() {
   return (
     <main className="min-h-screen" style={{ backgroundColor: "#fdfcfd" }}>
       {/* Hero */}
-      <div
-        style={{
-          background: "linear-gradient(135deg, #e6f4fe 0%, #fdfcfd 100%)",
-          borderBottom: "1px solid #eae7ec",
-        }}
-      >
-        <div className="max-w-2xl mx-auto px-5 py-10 text-center">
+      <div style={{ background: "linear-gradient(160deg, #e6f4fe 0%, #fdfcfd 60%)" }}>
+        <div className="max-w-lg mx-auto px-5 pt-10 pb-8 text-center">
+          {/* <div
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-5 text-xs font-semibold uppercase tracking-widest"
+            style={{ backgroundColor: "#e6f4fe", color: "#0090ff" }}
+          >
+            Estimator AI
+          </div> */}
           <h1
             className="font-bold mb-3"
-            style={{ color: "#113264", fontSize: "clamp(1.6rem, 4vw, 2.25rem)", lineHeight: 1.25 }}
+            style={{ color: "#113264", fontSize: "clamp(1.75rem, 6vw, 2.5rem)", lineHeight: 1.2 }}
           >
             Estimare Preț Tatuaj
           </h1>
-          <p style={{ color: "#65636d", fontSize: "1rem", lineHeight: 1.7, maxWidth: 480, margin: "0 auto" }}>
-            Încarcă o imagine, selectează zona și dimensiunile — AI-ul analizează și îți oferă
-            o estimare de preț instantanee.
+          <p style={{ color: "#65636d", fontSize: "1rem", lineHeight: 1.7 }}>
+            Încarcă o imagine, selectează zona și dimensiunile — AI-ul analizează și îți oferă o estimare instantanee.
           </p>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-5 py-8 space-y-6">
+      <div className="max-w-lg mx-auto px-4 pb-12 space-y-4">
+
         {/* Loading */}
         {step === "loading" && (
-          <div className="text-center py-16 space-y-5">
-            <div className="relative w-14 h-14 mx-auto">
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{ border: "3px solid #e6f4fe" }}
-              />
+          <div className="text-center py-20 space-y-6">
+            <div className="relative w-16 h-16 mx-auto">
+              <div className="absolute inset-0 rounded-full" style={{ border: "3px solid #e6f4fe" }} />
               <div
                 className="absolute inset-0 rounded-full animate-columna-spin"
                 style={{
@@ -117,12 +115,12 @@ export default function Home() {
                 }}
               />
             </div>
-            <div>
-              <p className="font-medium" style={{ color: "#113264" }}>Analizăm tatuajul...</p>
-              <p className="text-sm mt-1" style={{ color: "#65636d" }}>Procesare imagine cu AI, câteva secunde</p>
+            <div className="space-y-1">
+              <p className="font-semibold text-lg" style={{ color: "#113264" }}>Analizăm tatuajul...</p>
+              <p className="text-sm" style={{ color: "#65636d" }}>Procesare imagine cu AI, câteva secunde</p>
             </div>
-            <div className="space-y-2 max-w-xs mx-auto">
-              {[75, 55, 65, 45].map((w, i) => (
+            <div className="space-y-2.5 max-w-xs mx-auto">
+              {[70, 50, 62, 40].map((w, i) => (
                 <div
                   key={i}
                   className="h-2.5 rounded-full animate-pulse"
@@ -135,7 +133,7 @@ export default function Home() {
 
         {/* Results */}
         {step === "results" && result && (
-          <>
+          <div className="space-y-4 pt-2">
             <ResultsCard
               result={result}
               placement={placement as BodyPlacement}
@@ -144,57 +142,95 @@ export default function Home() {
             />
             <button
               onClick={reset}
-              className="w-full py-3 rounded-lg text-sm font-medium transition-colors"
-              style={{ border: "1px solid #eae7ec", color: "#65636d", backgroundColor: "#fff" }}
+              className="w-full font-medium transition-colors mt-4"
+              style={{
+                height: 52,
+                borderRadius: 14,
+                border: "1.5px solid #eae7ec",
+                color: "#65636d",
+                backgroundColor: "#fff",
+                fontSize: "0.95rem",
+              }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fdfcfd")}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
             >
               Estimează alt tatuaj
             </button>
-          </>
+          </div>
         )}
 
         {/* Input form */}
         {step === "input" && (
-          <div className="space-y-6">
-            {/* Step 1 */}
+          <div className="space-y-4">
+
+            {/* Step 1 — Image */}
             <section
-              className="rounded-xl p-6 space-y-4"
-              style={{ backgroundColor: "#fff", border: "1px solid #eae7ec", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+              className="mt-4"
+              style={{
+                backgroundColor: "#fff",
+                border: "1.5px solid #eae7ec",
+                borderRadius: 20,
+                padding: "24px 20px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+              }}
             >
-              <SectionHeader number={1} title="Imaginea tatuajului" />
-              <ImageUpload images={images} onChange={setImages} />
+              <StepHeader number={1} title="Imaginea tatuajului" />
+              <div style={{ marginTop: 16 }}>
+                <ImageUpload images={images} onChange={setImages} />
+              </div>
             </section>
 
-            {/* Step 2 */}
+            {/* Step 2 — Placement */}
             <section
-              className="rounded-xl p-6 space-y-4"
-              style={{ backgroundColor: "#fff", border: "1px solid #eae7ec", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+              className="mt-4"
+              style={{
+                backgroundColor: "#fff",
+                border: "1.5px solid #eae7ec",
+                borderRadius: 20,
+                padding: "24px 20px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+              }}
             >
-              <SectionHeader number={2} title="Detalii" />
-              <BodyPlacementSelector value={placement} onChange={setPlacement} />
-              <DimensionInput
-                width={width}
-                height={height}
-                onWidthChange={setWidth}
-                onHeightChange={setHeight}
-              />
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium" style={{ color: "#211f26" }}>
-                  Note suplimentare{" "}
-                  <span className="font-normal" style={{ color: "#65636d" }}>(opțional)</span>
-                </label>
+              <StepHeader number={2} title="Zonă & dimensiuni" />
+              <div className="space-y-4" style={{ marginTop: 16 }}>
+                <BodyPlacementSelector value={placement} onChange={setPlacement} />
+                <DimensionInput
+                  width={width}
+                  height={height}
+                  onWidthChange={setWidth}
+                  onHeightChange={setHeight}
+                />
+              </div>
+            </section>
+
+            {/* Step 3 — Notes */}
+            <section
+              className="mt-4"
+              style={{
+                backgroundColor: "#fff",
+                border: "1.5px solid #eae7ec",
+                borderRadius: 20,
+                padding: "24px 20px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+              }}
+            >
+              <StepHeader number={3} title="Note suplimentare" optional />
+              <div style={{ marginTop: 16 }}>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="ex. cover-up, culori specifice, detalii importante..."
-                  rows={3}
-                  className="w-full rounded-lg px-4 py-3 text-sm resize-none"
+                  rows={4}
+                  className="w-full resize-none"
                   style={{
                     backgroundColor: "#fdfcfd",
-                    border: "1px solid #eae7ec",
+                    border: "1.5px solid #eae7ec",
+                    borderRadius: 12,
+                    padding: "14px 16px",
                     color: "#211f26",
+                    fontSize: "1rem",
                     outline: "none",
+                    lineHeight: 1.6,
                   }}
                   onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
                   onBlur={(e) => (e.currentTarget.style.borderColor = "#eae7ec")}
@@ -205,8 +241,14 @@ export default function Home() {
             {/* Error */}
             {error && (
               <div
-                className="rounded-lg p-3 text-sm"
-                style={{ backgroundColor: "#fff0f0", border: "1px solid #fca5a5", color: "#dc2626" }}
+                style={{
+                  backgroundColor: "#fff0f0",
+                  border: "1px solid #fca5a5",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  color: "#dc2626",
+                  fontSize: "0.9rem",
+                }}
               >
                 {error}
               </div>
@@ -216,11 +258,16 @@ export default function Home() {
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="w-full py-3.5 rounded-lg font-medium text-base transition-colors"
+              className="w-full font-semibold transition-colors mt-4"
               style={{
+                height: 58,
+                borderRadius: 16,
                 backgroundColor: canSubmit ? "#0090ff" : "#eae7ec",
-                color: canSubmit ? "#fff" : "#65636d",
+                color: canSubmit ? "#fff" : "#a09fa6",
                 cursor: canSubmit ? "pointer" : "not-allowed",
+                fontSize: "1.05rem",
+                letterSpacing: "0.01em",
+                border: "none",
               }}
               onMouseEnter={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#0070d4"; }}
               onMouseLeave={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#0090ff"; }}
@@ -233,22 +280,34 @@ export default function Home() {
 
       {/* Footer */}
       <div className="text-center pb-8">
-        <span className="text-xs" style={{ color: "#a09fa6" }}>Powered by AI · Anthropic Claude</span>
       </div>
     </main>
   );
 }
 
-function SectionHeader({ number, title }: { number: number; title: string }) {
+function StepHeader({ number, title, optional }: { number: number; title: string; optional?: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <span
-        className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: "#e6f4fe", color: "#0090ff" }}
+        className="flex items-center justify-center flex-shrink-0 font-bold text-sm"
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: "50%",
+          backgroundColor: "#e6f4fe",
+          color: "#0090ff",
+        }}
       >
         {number}
       </span>
-      <h2 className="font-medium text-base" style={{ color: "#113264" }}>{title}</h2>
+      <h2 className="font-semibold" style={{ color: "#113264", fontSize: "1rem" }}>
+        {title}
+        {optional && (
+          <span className="font-normal ml-1.5" style={{ color: "#a09fa6", fontSize: "0.85rem" }}>
+            (opțional)
+          </span>
+        )}
+      </h2>
     </div>
   );
 }

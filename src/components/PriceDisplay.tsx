@@ -9,26 +9,32 @@ export default function PriceDisplay({ estimate }: Props) {
   const { minPrice, maxPrice, currency, estimatedHours } = estimate;
   return (
     <div
-      className="rounded-xl p-6 text-center space-y-3"
+      className="text-center"
       style={{
-        background: "linear-gradient(135deg, #e6f4fe 0%, #f0f8ff 100%)",
-        border: "1px solid #c5e0fc",
+        background: "linear-gradient(135deg, #113264 0%, #1a4a8a 100%)",
+        borderRadius: 20,
+        padding: "32px 24px",
       }}
     >
-      <p className="text-sm font-medium uppercase tracking-widest" style={{ color: "#0090ff" }}>
+      <p
+        className="uppercase tracking-widest font-semibold mb-4"
+        style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}
+      >
         Estimare preț
       </p>
-      <div className="flex items-baseline justify-center gap-2 flex-wrap">
-        <span className="font-bold" style={{ color: "#113264", fontSize: "clamp(2rem, 8vw, 3rem)" }}>
+      <div className="flex items-baseline justify-center gap-3 flex-wrap">
+        <span className="font-bold" style={{ color: "#fff", fontSize: "clamp(2.5rem, 10vw, 3.5rem)", lineHeight: 1 }}>
           {minPrice.toLocaleString("ro-RO")}
         </span>
-        <span className="text-2xl" style={{ color: "#65636d" }}>—</span>
-        <span className="font-bold" style={{ color: "#113264", fontSize: "clamp(2rem, 8vw, 3rem)" }}>
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "1.5rem" }}>—</span>
+        <span className="font-bold" style={{ color: "#fff", fontSize: "clamp(2.5rem, 10vw, 3.5rem)", lineHeight: 1 }}>
           {maxPrice.toLocaleString("ro-RO")}
         </span>
-        <span className="text-xl font-medium ml-1" style={{ color: "#0090ff" }}>{currency}</span>
+        <span className="font-semibold" style={{ color: "#60b4ff", fontSize: "1.4rem" }}>{currency}</span>
       </div>
-      <p className="text-sm" style={{ color: "#65636d" }}>~{estimatedHours}h lucru estimat</p>
+      <p className="mt-4" style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem" }}>
+        ~{estimatedHours}h lucru estimat
+      </p>
     </div>
   );
 }

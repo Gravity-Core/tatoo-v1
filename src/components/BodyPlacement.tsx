@@ -59,36 +59,48 @@ export const placementLabels: Record<BodyPlacement, string> = Object.fromEntries
 
 export default function BodyPlacementSelector({ value, onChange }: Props) {
   return (
-    <div className="space-y-1.5">
-      <label className="block text-sm font-medium" style={{ color: "#211f26" }}>
+    <div className="space-y-2">
+      <label className="block font-medium" style={{ color: "#211f26", fontSize: "0.95rem" }}>
         Zonă corp
       </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as BodyPlacement)}
-        className="w-full rounded-lg px-4 py-3 text-sm appearance-none cursor-pointer"
-        style={{
-          backgroundColor: "#fdfcfd",
-          border: "1px solid #eae7ec",
-          color: "#211f26",
-          outline: "none",
-        }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
-        onBlur={(e) => (e.currentTarget.style.borderColor = "#eae7ec")}
-      >
-        <option value="" disabled style={{ color: "#65636d" }}>
-          Selectează zona corpului...
-        </option>
-        {placementGroups.map((group) => (
-          <optgroup key={group.label} label={group.label}>
-            {group.options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value as BodyPlacement)}
+          className="w-full appearance-none cursor-pointer"
+          style={{
+            height: 54,
+            borderRadius: 12,
+            border: `1.5px solid ${value ? "#0090ff" : "#eae7ec"}`,
+            backgroundColor: "#fdfcfd",
+            color: value ? "#211f26" : "#a09fa6",
+            fontSize: "1rem",
+            padding: "0 44px 0 16px",
+            outline: "none",
+          }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = value ? "#0090ff" : "#eae7ec")}
+        >
+          <option value="" disabled>Selectează zona corpului...</option>
+          {placementGroups.map((group) => (
+            <optgroup key={group.label} label={group.label}>
+              {group.options.map((opt) => (
+                <option key={opt.value} value={opt.value} style={{ color: "#211f26" }}>
+                  {opt.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        {/* Custom arrow */}
+        <div
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={value ? "#0090ff" : "#a09fa6"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }

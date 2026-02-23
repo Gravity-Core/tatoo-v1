@@ -68,21 +68,17 @@ export default function ImageUpload({ images, onChange }: Props) {
   const remove = (idx: number) => onChange(images.filter((_, i) => i !== idx));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      {/* Drop zone */}
       <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setIsDragging(false);
-          handleFiles(e.dataTransfer.files);
-        }}
-        className="relative border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors"
+        onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
+        className="relative text-center cursor-pointer transition-all"
         style={{
-          borderColor: isDragging ? "#0090ff" : "#eae7ec",
+          border: `2px dashed ${isDragging ? "#0090ff" : "#c8c6ce"}`,
+          borderRadius: 16,
+          padding: "32px 20px",
           backgroundColor: isDragging ? "#e6f4fe" : "#fdfcfd",
         }}
       >
@@ -93,51 +89,79 @@ export default function ImageUpload({ images, onChange }: Props) {
           className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />
-        <div className="space-y-2 pointer-events-none">
-          <svg
-            className="w-10 h-10 mx-auto"
-            style={{ color: "#0090ff" }}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <div className="pointer-events-none space-y-3">
+          {/* Icon */}
+          <div
+            className="mx-auto flex items-center justify-center"
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              backgroundColor: isDragging ? "#c5e0fc" : "#e6f4fe",
+            }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-          <p className="font-medium" style={{ color: "#211f26" }}>Încarcă imaginea tatuajului dorit</p>
-          <p className="text-sm" style={{ color: "#65636d" }}>
-            Trage sau apasă · JPG, PNG, WEBP · Max {MAX_SIZE_MB}MB · 1–{MAX_IMAGES} imagini
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0090ff" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+          </div>
+          <div>
+            <p className="font-semibold" style={{ color: "#211f26", fontSize: "1rem" }}>
+              Apasă pentru a adăuga imagini
+            </p>
+            <p className="mt-1" style={{ color: "#65636d", fontSize: "0.85rem" }}>
+              sau trage fișierele aici
+            </p>
+          </div>
+          <p style={{ color: "#a09fa6", fontSize: "0.8rem" }}>
+            JPG · PNG · WEBP · max {MAX_SIZE_MB}MB · până la {MAX_IMAGES} imagini
           </p>
         </div>
       </div>
 
-      {error && <p className="text-sm" style={{ color: "#dc2626" }}>{error}</p>}
+      {/* Error */}
+      {error && (
+        <p style={{ color: "#dc2626", fontSize: "0.875rem" }}>{error}</p>
+      )}
 
+      {/* Thumbnails */}
       {images.length > 0 && (
-        <div className="flex gap-3 flex-wrap">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${MAX_IMAGES}, 1fr)`,
+            gap: 10,
+          }}
+        >
           {images.map((src, i) => (
             <div
               key={i}
-              className="relative group w-24 h-24 rounded-lg overflow-hidden"
-              style={{ border: "1px solid #eae7ec" }}
+              className="relative group overflow-hidden"
+              style={{ aspectRatio: "1", borderRadius: 12, border: "1.5px solid #eae7ec" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={src}
-                alt={`Referință ${i + 1}`}
-                className="w-full h-full object-cover"
-              />
+              <img src={src} alt={`Referință ${i + 1}`} className="w-full h-full object-cover" />
               <button
                 onClick={() => remove(i)}
-                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-medium transition-opacity"
+                className="absolute inset-0 flex items-center justify-center font-medium transition-opacity opacity-0 group-hover:opacity-100"
+                style={{ backgroundColor: "rgba(0,0,0,0.5)", color: "#fff", fontSize: "0.8rem" }}
               >
                 Elimină
               </button>
             </div>
+          ))}
+          {/* Empty slots */}
+          {Array.from({ length: MAX_IMAGES - images.length }).map((_, i) => (
+            <div
+              key={`empty-${i}`}
+              style={{
+                aspectRatio: "1",
+                borderRadius: 12,
+                border: "1.5px dashed #eae7ec",
+                backgroundColor: "#fdfcfd",
+              }}
+            />
           ))}
         </div>
       )}
