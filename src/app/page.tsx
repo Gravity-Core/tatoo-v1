@@ -382,11 +382,6 @@ export default function Home() {
         </div>
 
       </div>
-
-      {/* Footer */}
-      <div className="text-center pb-8">
-        <span className="text-xs" style={{ color: "#c8c6ce" }}>Powered by AI · Anthropic Claude</span>
-      </div>
     </main>
   );
 }
