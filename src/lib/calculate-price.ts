@@ -21,9 +21,9 @@ export const defaultPricingConfig: PricingConfig = {
     { maxSqCm: 10, label: "Mediu", basePrice: 140 },
     { maxSqCm: 20, label: "Mare", basePrice: 230 },
   ],
-  overflowPricePerSqCm: 20,
-  colorMultiplier: 1.25,
-  complexityMultiplier: 0.08,
+  overflowPricePerSqCm: 10,
+  colorMultiplier: 1,
+  complexityMultiplier: 0,
 };
 
 export function calculatePrice(

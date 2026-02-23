@@ -1,41 +1,70 @@
 "use client";
 import { useState } from "react";
 import ImageUpload from "@/components/ImageUpload";
-import BodyPlacementSelector from "@/components/BodyPlacement";
-import DimensionInput from "@/components/DimensionInput";
-import ResultsCard from "@/components/ResultsCard";
 import { useWordPressBridge } from "./useWordPressBridge";
 import type { AnalyzeResponse, BodyPlacement } from "@/lib/types";
 
 type Step = "input" | "loading" | "results";
+type SizePreset = "" | "mic" | "mediu" | "mare" | "custom";
+
+const SIZE_OPTIONS = [
+  { value: "mic"    as SizePreset, label: "Mic",          sublabel: "până la 2 cm²", w: "1.4", h: "1.4" },
+  { value: "mediu"  as SizePreset, label: "Mediu",        sublabel: "2 – 10 cm²",    w: "3",   h: "3"   },
+  { value: "mare"   as SizePreset, label: "Mare",         sublabel: "10 – 20 cm²",   w: "4",   h: "5"   },
+  { value: "custom" as SizePreset, label: "Personalizat", sublabel: "introduc exact", w: null,  h: null  },
+] as const;
+
+const ZONE_OPTIONS: { value: BodyPlacement; label: string }[] = [
+  { value: "upper_arm",  label: "Braț"      },
+  { value: "thigh",      label: "Picior"    },
+  { value: "back_upper", label: "Spate"     },
+  { value: "chest",      label: "Piept"     },
+  { value: "ribs",       label: "Altă zonă" },
+];
+
+const styleLabels: Record<string, string> = {
+  realism: "Realism", traditional: "Tradițional", "neo-traditional": "Neo-tradițional",
+  geometric: "Geometric", watercolor: "Acuarelă", linework: "Linii",
+  dotwork: "Puncte", tribal: "Tribal", japanese: "Japonez",
+  lettering: "Litere", blackwork: "Blackwork", "trash-polka": "Trash Polka", mixed: "Mixt",
+};
 
 export default function Home() {
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages]       = useState<string[]>([]);
+  const [sizePreset, setSizePreset] = useState<SizePreset>("");
   const [placement, setPlacement] = useState<BodyPlacement | "">("");
-  const [width, setWidth] = useState("");
-  const [height, setHeight] = useState("");
-  const [notes, setNotes] = useState("");
+  const [width, setWidth]         = useState("");
+  const [height, setHeight]       = useState("");
+  const [notes, setNotes]         = useState("");
   const [confirmed, setConfirmed] = useState(false);
-  const [step, setStep] = useState<Step>("input");
-  const [result, setResult] = useState<AnalyzeResponse | null>(null);
-  const [error, setError] = useState("");
+  const [step, setStep]           = useState<Step>("input");
+  const [result, setResult]       = useState<AnalyzeResponse | null>(null);
+  const [error, setError]         = useState("");
 
   const { scrollToTop, sendEvent } = useWordPressBridge();
 
   const canSubmit =
-    images.length > 0 && placement !== "" && width !== "" && height !== "" && confirmed && step === "input";
+    images.length > 0 && placement !== "" && width !== "" && height !== "" &&
+    confirmed && step !== "loading";
+
+  function handleSizePreset(preset: SizePreset) {
+    setSizePreset(preset);
+    const opt = SIZE_OPTIONS.find((o) => o.value === preset);
+    if (opt?.w) { setWidth(opt.w); setHeight(opt.h!); }
+    else         { setWidth("");    setHeight("");      }
+  }
 
   async function handleSubmit() {
     if (!canSubmit) return;
     setStep("loading");
+    setResult(null);
     setError("");
     try {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          images,
-          placement,
+          images, placement,
           widthCm: parseFloat(width),
           heightCm: parseFloat(height),
           notes,
@@ -65,236 +94,211 @@ export default function Home() {
   }
 
   function reset() {
-    setStep("input");
-    setResult(null);
-    setImages([]);
-    setPlacement("");
-    setWidth("");
-    setHeight("");
-    setNotes("");
-    setConfirmed(false);
-    setError("");
+    setImages([]); setSizePreset(""); setPlacement("");
+    setWidth(""); setHeight(""); setNotes("");
+    setConfirmed(false); setResult(null); setStep("input"); setError("");
   }
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "#fdfcfd" }}>
+
       {/* Hero */}
-      <div style={{ background: "linear-gradient(160deg, #e6f4fe 0%, #fdfcfd 60%)" }}>
-        <div className="max-w-lg mx-auto px-5 pt-10 pb-8 text-center">
-          {/* <div
-            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-5 text-xs font-semibold uppercase tracking-widest"
-            style={{ backgroundColor: "#e6f4fe", color: "#0090ff" }}
-          >
-            Estimator AI
-          </div> */}
-          <h1
-            className="font-bold mb-3"
-            style={{ color: "#113264", fontSize: "clamp(1.75rem, 6vw, 2.5rem)", lineHeight: 1.2 }}
-          >
-            Estimare Preț Tatuaj
-          </h1>
-          <p style={{ color: "#65636d", fontSize: "1rem", lineHeight: 1.7 }}>
-            Încarcă o imagine, selectează zona și dimensiunile — AI-ul analizează și îți oferă o estimare instantanee.
-          </p>
-        </div>
+      <div className="text-center" style={{ padding: "44px 20px 28px" }}>
+        <h1
+          className="font-bold mb-2"
+          style={{ color: "#113264", fontSize: "clamp(1.5rem, 5vw, 2.25rem)", lineHeight: 1.2 }}
+        >
+          Estimare Preț Tatuaj
+        </h1>
+        <p style={{ color: "#65636d", fontSize: "1rem", marginBottom: 20 }}>
+          Estimare instant în câteva secunde.
+        </p>
       </div>
 
-      {/* Content */}
-      <div className="max-w-lg mx-auto px-4 pb-12 space-y-4">
+      {/* Two-column grid */}
+      <div className="calc-layout" style={{ maxWidth: 980, margin: "0 auto", padding: "0 16px 48px" }}>
 
-        {/* Loading */}
-        {step === "loading" && (
-          <div className="text-center py-20 space-y-6">
-            <div className="relative w-16 h-16 mx-auto">
-              <div className="absolute inset-0 rounded-full" style={{ border: "3px solid #e6f4fe" }} />
-              <div
-                className="absolute inset-0 rounded-full animate-columna-spin"
+        {/* ── LEFT: Calculator card ── */}
+        <div style={card}>
+          <h2 className="text-center font-semibold mb-1" style={{ color: "#113264", fontSize: "1.05rem" }}>
+            Calculator de Preț
+          </h2>
+          <div style={{ height: 1, backgroundColor: "#f0eef3", margin: "16px 0 20px" }} />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+            {/* Pasul 1 — Dimensiune */}
+            <StepSection number={1} title="Dimensiune Tatuaj">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {SIZE_OPTIONS.map((opt) => {
+                  const active = sizePreset === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleSizePreset(opt.value)}
+                      style={{
+                        padding: "13px 10px",
+                        borderRadius: 12,
+                        border: `1.5px solid ${active ? "#0090ff" : "#eae7ec"}`,
+                        backgroundColor: active ? "#0090ff" : "#fff",
+                        color: active ? "#fff" : "#211f26",
+                        cursor: "pointer",
+                        textAlign: "center",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <div style={{ fontWeight: 600, fontSize: "0.95rem" }}>{opt.label}</div>
+                      <div style={{ fontSize: "0.72rem", marginTop: 2, opacity: active ? 0.85 : 0.55 }}>
+                        {opt.sublabel}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom dimension inputs */}
+              {sizePreset === "custom" && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
+                  {[
+                    { label: "Lățime (cm)", val: width,  set: setWidth  },
+                    { label: "Înălțime (cm)", val: height, set: setHeight },
+                  ].map(({ label, val, set }) => (
+                    <div key={label}>
+                      <label style={{ display: "block", fontSize: "0.78rem", color: "#65636d", marginBottom: 5 }}>
+                        {label}
+                      </label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="number" min="1" max="100" step="0.5"
+                          value={val}
+                          onChange={(e) => set(e.target.value)}
+                          placeholder="0"
+                          style={{
+                            width: "100%", height: 46, borderRadius: 10, boxSizing: "border-box",
+                            border: `1.5px solid ${val ? "#0090ff" : "#eae7ec"}`,
+                            backgroundColor: "#fdfcfd", color: "#211f26",
+                            fontSize: "1rem", fontWeight: 600, padding: "0 34px 0 12px", outline: "none",
+                          }}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
+                          onBlur={(e)  => (e.currentTarget.style.borderColor = val ? "#0090ff" : "#eae7ec")}
+                        />
+                        <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", color: "#a09fa6", fontSize: "0.8rem", pointerEvents: "none" }}>
+                          cm
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </StepSection>
+
+            <Divider />
+
+            {/* Pasul 2 — Image */}
+            <StepSection number={2} title="Imaginea tatuajului">
+              <ImageUpload images={images} onChange={setImages} />
+            </StepSection>
+
+            <Divider />
+
+            {/* Pasul 3 — Confirmation */}
+            <StepSection number={3} title="Confirmare">
+              <label
+                className="flex items-center gap-3 cursor-pointer"
                 style={{
-                  borderTop: "3px solid #0090ff",
-                  borderRight: "3px solid transparent",
-                  borderBottom: "3px solid transparent",
-                  borderLeft: "3px solid transparent",
+                  backgroundColor: confirmed ? "#e6f4fe" : "#fdfcfd",
+                  border: `1.5px solid ${confirmed ? "#0090ff" : "#eae7ec"}`,
+                  borderRadius: 12,
+                  padding: "14px 16px",
+                  transition: "all 0.15s",
                 }}
+              >
+                <div className="relative flex-shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={confirmed}
+                    onChange={(e) => setConfirmed(e.target.checked)}
+                    className="sr-only"
+                  />
+                  <div
+                    style={{
+                      width: 22, height: 22, borderRadius: 6,
+                      border: `2px solid ${confirmed ? "#0090ff" : "#c8c6ce"}`,
+                      backgroundColor: confirmed ? "#0090ff" : "#fff",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "all 0.15s", flexShrink: 0,
+                    }}
+                  >
+                    {confirmed && (
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span style={{ color: "#211f26", fontSize: "0.9rem", lineHeight: 1.5 }}>
+                  Tatuajul nu este mai recent de 6 luni
+                </span>
+              </label>
+            </StepSection>
+
+            <Divider />
+
+            {/* Pasul 4 — Body zone */}
+            <StepSection number={4} title="Zonă Corporală">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+                {ZONE_OPTIONS.map((zone) => {
+                  const active = placement === zone.value;
+                  return (
+                    <button
+                      key={zone.value}
+                      onClick={() => setPlacement(zone.value)}
+                      style={{
+                        padding: "14px 6px 10px",
+                        borderRadius: 12,
+                        border: `1.5px solid ${active ? "#0090ff" : "#eae7ec"}`,
+                        backgroundColor: active ? "#e6f4fe" : "#fff",
+                        cursor: "pointer",
+                        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <ZoneIcon zone={zone.value} active={active} />
+                      <span style={{ fontSize: "0.72rem", color: active ? "#0090ff" : "#65636d", fontWeight: active ? 600 : 400 }}>
+                        {zone.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </StepSection>
+
+            <Divider />
+
+            {/* Notes — optional */}
+            <div>
+              <p className="font-medium mb-3" style={{ color: "#65636d", fontSize: "0.875rem" }}>
+                Note suplimentare <span style={{ color: "#a09fa6" }}>(opțional)</span>
+              </p>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="ex. cover-up, culori specifice, detalii importante..."
+                rows={3}
+                className="w-full resize-none"
+                style={{
+                  backgroundColor: "#fdfcfd", border: "1.5px solid #eae7ec",
+                  borderRadius: 12, padding: "12px 14px",
+                  color: "#211f26", fontSize: "0.95rem", outline: "none", lineHeight: 1.6,
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
+                onBlur={(e)  => (e.currentTarget.style.borderColor = "#eae7ec")}
               />
             </div>
-            <div className="space-y-1">
-              <p className="font-semibold text-lg" style={{ color: "#113264" }}>Analizăm tatuajul...</p>
-              <p className="text-sm" style={{ color: "#65636d" }}>Procesare imagine cu AI, câteva secunde</p>
-            </div>
-            <div className="space-y-2.5 max-w-xs mx-auto">
-              {[70, 50, 62, 40].map((w, i) => (
-                <div
-                  key={i}
-                  className="h-2.5 rounded-full animate-pulse"
-                  style={{ width: `${w}%`, backgroundColor: "#e6f4fe" }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Results */}
-        {step === "results" && result && (
-          <div className="space-y-4 pt-2">
-            <ResultsCard
-              result={result}
-              placement={placement as BodyPlacement}
-              widthCm={parseFloat(width)}
-              heightCm={parseFloat(height)}
-            />
-            <button
-              onClick={reset}
-              className="w-full font-medium transition-colors mt-4"
-              style={{
-                height: 52,
-                borderRadius: 14,
-                border: "1.5px solid #eae7ec",
-                color: "#65636d",
-                backgroundColor: "#fff",
-                fontSize: "0.95rem",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fdfcfd")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
-            >
-              Estimează alt tatuaj
-            </button>
-          </div>
-        )}
-
-        {/* Input form */}
-        {step === "input" && (
-          <div className="space-y-4">
-
-            {/* Step 1 — Image */}
-            <section
-              className="mt-4"
-              style={{
-                backgroundColor: "#fff",
-                border: "1.5px solid #eae7ec",
-                borderRadius: 20,
-                padding: "24px 20px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-              }}
-            >
-              <StepHeader number={1} title="Imaginea tatuajului" />
-              <div style={{ marginTop: 16 }}>
-                <ImageUpload images={images} onChange={setImages} />
-              </div>
-            </section>
-
-            {/* Step 2 — Placement */}
-            <section
-              className="mt-4"
-              style={{
-                backgroundColor: "#fff",
-                border: "1.5px solid #eae7ec",
-                borderRadius: 20,
-                padding: "24px 20px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-              }}
-            >
-              <StepHeader number={2} title="Zonă & dimensiuni" />
-              <div className="space-y-4" style={{ marginTop: 16 }}>
-                <BodyPlacementSelector value={placement} onChange={setPlacement} />
-                <DimensionInput
-                  width={width}
-                  height={height}
-                  onWidthChange={setWidth}
-                  onHeightChange={setHeight}
-                />
-              </div>
-            </section>
-
-            {/* Step 3 — Notes */}
-            <section
-              className="mt-4"
-              style={{
-                backgroundColor: "#fff",
-                border: "1.5px solid #eae7ec",
-                borderRadius: 20,
-                padding: "24px 20px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-              }}
-            >
-              <StepHeader number={3} title="Note suplimentare" optional />
-              <div style={{ marginTop: 16 }}>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="ex. cover-up, culori specifice, detalii importante..."
-                  rows={4}
-                  className="w-full resize-none"
-                  style={{
-                    backgroundColor: "#fdfcfd",
-                    border: "1.5px solid #eae7ec",
-                    borderRadius: 12,
-                    padding: "14px 16px",
-                    color: "#211f26",
-                    fontSize: "1rem",
-                    outline: "none",
-                    lineHeight: 1.6,
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = "#eae7ec")}
-                />
-              </div>
-            </section>
-
-            {/* Confirmation checkbox */}
-            <label
-              className="flex items-center gap-3 cursor-pointer"
-              style={{
-                backgroundColor: confirmed ? "#e6f4fe" : "#fff",
-                border: `1.5px solid ${confirmed ? "#0090ff" : "#eae7ec"}`,
-                borderRadius: 14,
-                padding: "16px 18px",
-                transition: "border-color 0.15s, background-color 0.15s",
-              }}
-            >
-              <div className="relative flex-shrink-0">
-                <input
-                  type="checkbox"
-                  checked={confirmed}
-                  onChange={(e) => setConfirmed(e.target.checked)}
-                  className="sr-only"
-                />
-                <div
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 6,
-                    border: `2px solid ${confirmed ? "#0090ff" : "#c8c6ce"}`,
-                    backgroundColor: confirmed ? "#0090ff" : "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "border-color 0.15s, background-color 0.15s",
-                  }}
-                >
-                  {confirmed && (
-                    <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
-              </div>
-              <span style={{ color: "#211f26", fontSize: "0.95rem", lineHeight: 1.5 }}>
-                Tatuajul nu este mai recent de 6 luni
-              </span>
-            </label>
 
             {/* Error */}
             {error && (
-              <div
-                style={{
-                  backgroundColor: "#fff0f0",
-                  border: "1px solid #fca5a5",
-                  borderRadius: 12,
-                  padding: "12px 16px",
-                  color: "#dc2626",
-                  fontSize: "0.9rem",
-                }}
-              >
+              <div style={{ backgroundColor: "#fff0f0", border: "1px solid #fca5a5", borderRadius: 10, padding: "12px 14px", color: "#dc2626", fontSize: "0.875rem" }}>
                 {error}
               </div>
             )}
@@ -303,52 +307,248 @@ export default function Home() {
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="w-full font-semibold transition-colors mt-4"
+              className="w-full font-semibold"
               style={{
-                height: 58,
-                borderRadius: 16,
+                height: 54, borderRadius: 14, border: "none",
                 backgroundColor: canSubmit ? "#0090ff" : "#eae7ec",
                 color: canSubmit ? "#fff" : "#a09fa6",
                 cursor: canSubmit ? "pointer" : "not-allowed",
-                fontSize: "1.05rem",
-                letterSpacing: "0.01em",
-                border: "none",
+                fontSize: "0.95rem", letterSpacing: "0.04em",
+                transition: "background-color 0.15s",
               }}
               onMouseEnter={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#0070d4"; }}
               onMouseLeave={(e) => { if (canSubmit) e.currentTarget.style.backgroundColor = "#0090ff"; }}
             >
-              Estimează Prețul
+              ESTIMEAZĂ PREȚUL
             </button>
+
           </div>
-        )}
+        </div>
+
+        {/* ── RIGHT: Results card (sticky) ── */}
+        <div style={{ position: "sticky", top: 20 }}>
+          <div style={card}>
+            <h2 className="text-center font-semibold mb-1" style={{ color: "#113264", fontSize: "1rem" }}>
+              Estimare Personalizată
+            </h2>
+            <div style={{ height: 1, backgroundColor: "#f0eef3", margin: "14px 0 18px" }} />
+
+            {/* Placeholder */}
+            {step === "input" && !result && (
+              <div className="text-center" style={{ padding: "16px 0 20px" }}>
+                <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🖋</div>
+                <p style={{ color: "#a09fa6", fontSize: "0.85rem", lineHeight: 1.6 }}>
+                  Completează formularul pentru a vedea estimarea de preț
+                </p>
+              </div>
+            )}
+
+            {/* Previous result while form is being refilled */}
+            {step === "input" && result && (
+              <PricePanel result={result} onReset={reset} />
+            )}
+
+            {/* Loading */}
+            {step === "loading" && (
+              <div className="text-center" style={{ padding: "24px 0 28px" }}>
+                <div className="relative w-12 h-12 mx-auto mb-4">
+                  <div className="absolute inset-0 rounded-full" style={{ border: "3px solid #e6f4fe" }} />
+                  <div
+                    className="absolute inset-0 rounded-full animate-columna-spin"
+                    style={{
+                      borderTop: "3px solid #0090ff",
+                      borderRight: "3px solid transparent",
+                      borderBottom: "3px solid transparent",
+                      borderLeft: "3px solid transparent",
+                    }}
+                  />
+                </div>
+                <p className="font-semibold" style={{ color: "#113264", fontSize: "0.95rem" }}>Analizăm...</p>
+                <p style={{ color: "#65636d", fontSize: "0.8rem", marginTop: 4 }}>câteva secunde</p>
+              </div>
+            )}
+
+            {/* Results */}
+            {step === "results" && result && (
+              <PricePanel result={result} onReset={reset} />
+            )}
+          </div>
+        </div>
+
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pb-8">
+        <span className="text-xs" style={{ color: "#c8c6ce" }}>Powered by AI · Anthropic Claude</span>
       </div>
     </main>
   );
 }
 
-function StepHeader({ number, title, optional }: { number: number; title: string; optional?: boolean }) {
+// ── Sub-components ───────────────────────────────────────────────────────────
+
+function PricePanel({ result, onReset }: { result: AnalyzeResponse; onReset: () => void }) {
+  const { estimate, analysis } = result;
   return (
-    <div className="flex items-center gap-3">
-      <span
-        className="flex items-center justify-center flex-shrink-0 font-bold text-sm"
+    <div className="animate-fade-in">
+      {/* Price */}
+      <div className="text-center" style={{ marginBottom: 16 }}>
+        <div
+          className="font-bold"
+          style={{ color: "#0090ff", fontSize: "clamp(1.8rem, 6vw, 2.4rem)", lineHeight: 1.1 }}
+        >
+          {estimate.minPrice.toLocaleString("ro-RO")} – {estimate.maxPrice.toLocaleString("ro-RO")}
+          <span style={{ fontSize: "1.1rem", marginLeft: 6 }}>{estimate.currency}</span>
+        </div>
+        <p style={{ color: "#65636d", fontSize: "0.8rem", marginTop: 6 }}>
+          Categorie: <strong style={{ color: "#211f26" }}>{estimate.sizeTier}</strong>
+        </p>
+      </div>
+
+      {/* Analysis details */}
+      <div style={{ backgroundColor: "#fdfcfd", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <DetailRow label="Stil" value={styleLabels[analysis.style] ?? analysis.style} />
+          <DetailRow label="Culori" value={analysis.color_type === "black_grey" ? "Negru & Gri" : analysis.color_type === "color" ? "Color" : "Mixt"} />
+          {/* Complexity bar */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#65636d", marginBottom: 4 }}>
+              <span>Complexitate</span>
+              <span style={{ fontWeight: 600, color: "#113264" }}>{analysis.complexity}/10</span>
+            </div>
+            <div style={{ height: 6, backgroundColor: "#eae7ec", borderRadius: 99, overflow: "hidden" }}>
+              <div
+                style={{
+                  height: "100%",
+                  width: `${analysis.complexity * 10}%`,
+                  background: "linear-gradient(to right, #0090ff, #113264)",
+                  borderRadius: 99,
+                  transition: "width 0.8s ease",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Disclaimer */}
+      <p style={{ color: "#c8c6ce", fontSize: "0.72rem", textAlign: "center", marginBottom: 14 }}>
+        Estimare orientativă. Prețul final se stabilește la consultație.
+      </p>
+
+      {/* CTA */}
+      <a
+        href="#contact"
+        className="flex items-center justify-center font-bold"
         style={{
-          width: 32,
-          height: 32,
-          borderRadius: "50%",
-          backgroundColor: "#e6f4fe",
-          color: "#0090ff",
+          height: 46, borderRadius: 10,
+          backgroundColor: "#0090ff", color: "#fff",
+          fontSize: "0.8rem", letterSpacing: "0.05em",
+          textDecoration: "none", transition: "background-color 0.15s",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0070d4")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0090ff")}
+      >
+        PROGRAMEAZĂ CONSULTAȚIA
+      </a>
+
+      {/* Reset */}
+      <button
+        onClick={onReset}
+        style={{
+          width: "100%", marginTop: 10, height: 38, borderRadius: 8,
+          border: "1px solid #eae7ec", backgroundColor: "transparent",
+          color: "#a09fa6", fontSize: "0.8rem", cursor: "pointer",
         }}
       >
-        {number}
-      </span>
-      <h2 className="font-semibold" style={{ color: "#113264", fontSize: "1rem" }}>
-        {title}
-        {optional && (
-          <span className="font-normal ml-1.5" style={{ color: "#a09fa6", fontSize: "0.85rem" }}>
-            (opțional)
-          </span>
-        )}
-      </h2>
+        Estimează din nou
+      </button>
     </div>
   );
 }
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem" }}>
+      <span style={{ color: "#a09fa6" }}>{label}</span>
+      <span style={{ color: "#211f26", fontWeight: 600 }}>{value}</span>
+    </div>
+  );
+}
+
+function StepSection({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="flex items-center gap-2.5" style={{ marginBottom: 14 }}>
+        <span
+          style={{
+            width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+            backgroundColor: "#e6f4fe", color: "#0090ff",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 700, fontSize: "0.8rem",
+          }}
+        >
+          {number}
+        </span>
+        <h2 style={{ color: "#113264", fontWeight: 600, fontSize: "0.95rem" }}>{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Divider() {
+  return <div style={{ height: 1, backgroundColor: "#f0eef3" }} />;
+}
+
+// ── Body zone SVG icons ──────────────────────────────────────────────────────
+
+function ZoneIcon({ zone, active }: { zone: BodyPlacement; active: boolean }) {
+  const c = active ? "#0090ff" : "#b0adb8";
+  const props = { fill: "none", stroke: c, strokeWidth: 1.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+
+  if (zone === "upper_arm") return (
+    <svg width="26" height="40" viewBox="0 0 26 40" {...props}>
+      <path d="M13 3C9 3 7 6 7 11v10c0 4 2 6 5 7v8c0 1 .5 1.5 1 1.5s1-.5 1-1.5v-8c3-1 5-3 5-7V11c0-5-2-8-6-8z" />
+    </svg>
+  );
+
+  if (zone === "thigh") return (
+    <svg width="24" height="44" viewBox="0 0 24 44" {...props}>
+      <path d="M12 3C8 3 6 7 6 12v16c0 3 2 5 4 6v5c0 1.5 1 2 2 2s2-.5 2-2v-5c2-1 4-3 4-6V12C18 7 16 3 12 3z" />
+    </svg>
+  );
+
+  if (zone === "back_upper") return (
+    <svg width="36" height="40" viewBox="0 0 36 40" {...props}>
+      <path d="M9 10L5 15v18c0 4 3 6 7 6h12c4 0 7-2 7-6V15l-4-5C24 7 12 7 9 10z" />
+      <path d="M5 16l-2 2M31 16l2 2" />
+    </svg>
+  );
+
+  if (zone === "chest") return (
+    <svg width="36" height="40" viewBox="0 0 36 40" {...props}>
+      <path d="M9 12L5 16v17c0 4 3 6 7 6h12c4 0 7-2 7-6V16l-4-4C24 7 12 7 9 12z" />
+      <path d="M5 17l-2 2M31 17l2 2" />
+      <path d="M14 23c0 2 2 4 4 4s4-2 4-4" />
+    </svg>
+  );
+
+  // ribs / other
+  return (
+    <svg width="28" height="44" viewBox="0 0 28 44" {...props}>
+      <circle cx="14" cy="8" r="5" />
+      <path d="M10 14l-4 8-2 12 8 2v8h4v-8l8-2-2-12-4-8z" />
+    </svg>
+  );
+}
+
+// ── Shared styles ────────────────────────────────────────────────────────────
+
+const card: React.CSSProperties = {
+  backgroundColor: "#fff",
+  border: "1.5px solid #eae7ec",
+  borderRadius: 20,
+  padding: "24px 20px",
+  boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+};

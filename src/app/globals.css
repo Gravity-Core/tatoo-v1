@@ -41,3 +41,17 @@ body {
   outline: 2px solid #0090ff;
   outline-offset: 2px;
 }
+
+/* Two-column calculator layout */
+.calc-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (min-width: 860px) {
+  .calc-layout {
+    grid-template-columns: 1fr 290px;
+  }
+}
