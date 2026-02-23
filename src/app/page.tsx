@@ -322,10 +322,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <div className="text-center pb-8">
-      </div>
     </main>
   );
 }
