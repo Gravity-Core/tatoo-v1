@@ -169,10 +169,16 @@ export default function Home() {
                       </label>
                       <div style={{ position: "relative" }}>
                         <input
-                          type="number" min="1" max="100" step="0.5"
+                          type="text"
+                          inputMode="numeric"
                           value={val}
-                          onChange={(e) => set(e.target.value)}
-                          placeholder="0"
+                          onChange={(e) => {
+                            const digits = e.target.value.replace(/\D/g, "");
+                            if (digits === "") { set(""); return; }
+                            const num = parseInt(digits, 10);
+                            if (num > 0 && num <= 999) set(String(num));
+                          }}
+                          placeholder="ex: 10"
                           style={{
                             width: "100%", height: 46, borderRadius: 10, boxSizing: "border-box",
                             border: `1.5px solid ${val ? "#0090ff" : "#eae7ec"}`,
