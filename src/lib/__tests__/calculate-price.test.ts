@@ -14,39 +14,46 @@ const baseAnalysis: AIAnalysis = {
 };
 
 describe("calculatePrice", () => {
-  it("returns minimum price for tiny simple tattoo", () => {
+  it("uses Small tier for 1×1 cm tattoo", () => {
+    const result = calculatePrice(baseAnalysis, "forearm", 1, 1);
+    expect(result.sizeTier).toBe("Small");
+    expect(result.currency).toBe("EUR");
+    expect(result.estimatedPrice).toBeGreaterThanOrEqual(80);
+  });
+
+  it("uses Medium tier for 3×3 cm tattoo", () => {
     const result = calculatePrice(baseAnalysis, "forearm", 3, 3);
-    expect(result.estimatedPrice).toBeGreaterThanOrEqual(200);
-    expect(result.sizeTier).toBe("Foarte mic");
-    expect(result.currency).toBe("RON");
+    expect(result.sizeTier).toBe("Medium");
+    expect(result.estimatedPrice).toBeGreaterThanOrEqual(140);
   });
 
-  it("applies complexity multiplier correctly", () => {
-    const simple = calculatePrice({ ...baseAnalysis, complexity: 1 }, "forearm", 15, 15);
-    const complex = calculatePrice({ ...baseAnalysis, complexity: 10 }, "forearm", 15, 15);
-    expect(complex.estimatedPrice).toBeGreaterThan(simple.estimatedPrice);
+  it("uses Large tier for 4×5 cm tattoo", () => {
+    const result = calculatePrice(baseAnalysis, "forearm", 4, 5);
+    expect(result.sizeTier).toBe("Large");
+    expect(result.estimatedPrice).toBeGreaterThanOrEqual(230);
   });
 
-  it("applies realism style surcharge", () => {
-    const traditional = calculatePrice(baseAnalysis, "forearm", 15, 15);
-    const realism = calculatePrice({ ...baseAnalysis, style: "realism" }, "forearm", 15, 15);
-    expect(realism.estimatedPrice).toBeGreaterThan(traditional.estimatedPrice);
+  it("uses overflow pricing for tattoos above 20 cm²", () => {
+    const large = calculatePrice(baseAnalysis, "forearm", 5, 5); // 25 cm²
+    expect(large.sizeTier).toBe("Extra Mare");
+    // 230 + (25-20)*20 = 330 EUR
+    expect(large.estimatedPrice).toBeGreaterThan(230);
   });
 
   it("applies color surcharge", () => {
-    const bw = calculatePrice(baseAnalysis, "forearm", 15, 15);
-    const color = calculatePrice({ ...baseAnalysis, color_type: "color" }, "forearm", 15, 15);
+    const bw = calculatePrice(baseAnalysis, "forearm", 3, 3);
+    const color = calculatePrice({ ...baseAnalysis, color_type: "color" }, "forearm", 3, 3);
     expect(color.estimatedPrice).toBeGreaterThan(bw.estimatedPrice);
   });
 
-  it("applies placement difficulty surcharge for ribs", () => {
-    const forearm = calculatePrice(baseAnalysis, "forearm", 15, 15);
-    const ribs = calculatePrice(baseAnalysis, "ribs", 15, 15);
-    expect(ribs.estimatedPrice).toBeGreaterThan(forearm.estimatedPrice);
+  it("applies complexity multiplier correctly", () => {
+    const simple = calculatePrice({ ...baseAnalysis, complexity: 1 }, "forearm", 3, 3);
+    const complex = calculatePrice({ ...baseAnalysis, complexity: 10 }, "forearm", 3, 3);
+    expect(complex.estimatedPrice).toBeGreaterThan(simple.estimatedPrice);
   });
 
-  it("returns correct price range", () => {
-    const result = calculatePrice(baseAnalysis, "forearm", 15, 15);
+  it("returns correct ±15% price range", () => {
+    const result = calculatePrice(baseAnalysis, "forearm", 3, 3);
     expect(result.minPrice).toBeCloseTo(result.estimatedPrice * 0.85, 0);
     expect(result.maxPrice).toBeCloseTo(result.estimatedPrice * 1.15, 0);
   });

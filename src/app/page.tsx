@@ -15,6 +15,7 @@ export default function Home() {
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
   const [notes, setNotes] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
   const [step, setStep] = useState<Step>("input");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [error, setError] = useState("");
@@ -22,7 +23,7 @@ export default function Home() {
   const { scrollToTop, sendEvent } = useWordPressBridge();
 
   const canSubmit =
-    images.length > 0 && placement !== "" && width !== "" && height !== "" && step === "input";
+    images.length > 0 && placement !== "" && width !== "" && height !== "" && confirmed && step === "input";
 
   async function handleSubmit() {
     if (!canSubmit) return;
@@ -71,6 +72,7 @@ export default function Home() {
     setWidth("");
     setHeight("");
     setNotes("");
+    setConfirmed(false);
     setError("");
   }
 
@@ -237,6 +239,49 @@ export default function Home() {
                 />
               </div>
             </section>
+
+            {/* Confirmation checkbox */}
+            <label
+              className="flex items-center gap-3 cursor-pointer"
+              style={{
+                backgroundColor: confirmed ? "#e6f4fe" : "#fff",
+                border: `1.5px solid ${confirmed ? "#0090ff" : "#eae7ec"}`,
+                borderRadius: 14,
+                padding: "16px 18px",
+                transition: "border-color 0.15s, background-color 0.15s",
+              }}
+            >
+              <div className="relative flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  onChange={(e) => setConfirmed(e.target.checked)}
+                  className="sr-only"
+                />
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 6,
+                    border: `2px solid ${confirmed ? "#0090ff" : "#c8c6ce"}`,
+                    backgroundColor: confirmed ? "#0090ff" : "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "border-color 0.15s, background-color 0.15s",
+                  }}
+                >
+                  {confirmed && (
+                    <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span style={{ color: "#211f26", fontSize: "0.95rem", lineHeight: 1.5 }}>
+                Tatuajul nu este mai recent de 6 luni
+              </span>
+            </label>
 
             {/* Error */}
             {error && (

@@ -32,9 +32,11 @@ export default function PriceDisplay({ estimate }: Props) {
         </span>
         <span className="font-semibold" style={{ color: "#60b4ff", fontSize: "1.4rem" }}>{currency}</span>
       </div>
-      <p className="mt-4" style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem" }}>
-        ~{estimatedHours}h lucru estimat
-      </p>
+      {estimatedHours > 0 && (
+        <p className="mt-4" style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.875rem" }}>
+          ~{estimatedHours}h lucru estimat
+        </p>
+      )}
     </div>
   );
 }

@@ -95,15 +95,15 @@ export default function ResultsCard({ result, placement, widthCm, heightCm }: Pr
         </div>
 
         {/* AI description */}
-        {analysis.description && (
+        {/* {analysis.description && (
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #eae7ec" }}>
             <p style={{ color: "#a09fa6", fontSize: "0.75rem", marginBottom: 4 }}>Descriere AI</p>
             <p style={{ color: "#211f26", fontSize: "0.9rem", lineHeight: 1.6 }}>{analysis.description}</p>
           </div>
-        )}
+        )} */}
 
         {/* Special notes */}
-        {analysis.special_notes && (
+        {/* {analysis.special_notes && (
           <div
             style={{
               marginTop: 12,
@@ -116,7 +116,7 @@ export default function ResultsCard({ result, placement, widthCm, heightCm }: Pr
             <p style={{ color: "#0090ff", fontSize: "0.75rem", fontWeight: 600, marginBottom: 4 }}>Note speciale</p>
             <p style={{ color: "#211f26", fontSize: "0.875rem", lineHeight: 1.6 }}>{analysis.special_notes}</p>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Disclaimer */}
