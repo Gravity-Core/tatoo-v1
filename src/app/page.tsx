@@ -512,43 +512,30 @@ function Divider() {
 
 // ── Body zone SVG icons ──────────────────────────────────────────────────────
 
+const ZONE_ICONS: Partial<Record<BodyPlacement, string>> = {
+  upper_arm:  "/icons/arm.svg",
+  thigh:      "/icons/leg.svg",
+  back_upper: "/icons/back.svg",
+  chest:      "/icons/chest.svg",
+  ribs:       "/icons/other.svg",
+};
+
 function ZoneIcon({ zone, active }: { zone: BodyPlacement; active: boolean }) {
-  const c = active ? "#0090ff" : "#b0adb8";
-  const props = { fill: "none", stroke: c, strokeWidth: 1.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-
-  if (zone === "upper_arm") return (
-    <svg width="26" height="40" viewBox="0 0 26 40" {...props}>
-      <path d="M13 3C9 3 7 6 7 11v10c0 4 2 6 5 7v8c0 1 .5 1.5 1 1.5s1-.5 1-1.5v-8c3-1 5-3 5-7V11c0-5-2-8-6-8z" />
-    </svg>
-  );
-
-  if (zone === "thigh") return (
-    <svg width="24" height="44" viewBox="0 0 24 44" {...props}>
-      <path d="M12 3C8 3 6 7 6 12v16c0 3 2 5 4 6v5c0 1.5 1 2 2 2s2-.5 2-2v-5c2-1 4-3 4-6V12C18 7 16 3 12 3z" />
-    </svg>
-  );
-
-  if (zone === "back_upper") return (
-    <svg width="36" height="40" viewBox="0 0 36 40" {...props}>
-      <path d="M9 10L5 15v18c0 4 3 6 7 6h12c4 0 7-2 7-6V15l-4-5C24 7 12 7 9 10z" />
-      <path d="M5 16l-2 2M31 16l2 2" />
-    </svg>
-  );
-
-  if (zone === "chest") return (
-    <svg width="36" height="40" viewBox="0 0 36 40" {...props}>
-      <path d="M9 12L5 16v17c0 4 3 6 7 6h12c4 0 7-2 7-6V16l-4-4C24 7 12 7 9 12z" />
-      <path d="M5 17l-2 2M31 17l2 2" />
-      <path d="M14 23c0 2 2 4 4 4s4-2 4-4" />
-    </svg>
-  );
-
-  // ribs / other
   return (
-    <svg width="28" height="44" viewBox="0 0 28 44" {...props}>
-      <circle cx="14" cy="8" r="5" />
-      <path d="M10 14l-4 8-2 12 8 2v8h4v-8l8-2-2-12-4-8z" />
-    </svg>
+    <img
+      src={ZONE_ICONS[zone] ?? "/icons/other.svg"}
+      alt={zone}
+      style={{
+        width: 44,
+        height: 44,
+        objectFit: "contain",
+        objectPosition: "center",
+        flexShrink: 0,
+        transition: "opacity 0.15s, filter 0.15s",
+        opacity: active ? 1 : 0.55,
+        filter: active ? "none" : "grayscale(0.3)",
+      }}
+    />
   );
 }
 
