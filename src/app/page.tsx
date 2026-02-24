@@ -140,8 +140,10 @@ export default function Home() {
                       style={{
                         padding: "13px 10px",
                         borderRadius: 12,
-                        border: `1.5px solid ${active ? "#0090ff" : "#eae7ec"}`,
-                        backgroundColor: active ? "#0090ff" : "#fff",
+                        border: `1.5px solid ${active ? "#0090ff" : "#a8d4f8"}`,
+                        background: active
+                          ? "#0090ff"
+                          : "linear-gradient(150deg, #eef6ff 0%, #ffffff 65%)",
                         color: active ? "#fff" : "#211f26",
                         cursor: "pointer",
                         textAlign: "center",
@@ -334,7 +336,10 @@ export default function Home() {
         </div>
 
         {/* ── RIGHT: Results card (sticky) ── */}
-        <div style={{ position: "sticky", top: 20 }}>
+        <div
+          className={step === "input" && !result ? "results-panel-empty" : ""}
+          style={{ position: "sticky", top: 20 }}
+        >
           <div style={card}>
             <h2 className="text-center font-semibold mb-1" style={{ color: "#113264", fontSize: "1rem" }}>
               Estimare Personalizată

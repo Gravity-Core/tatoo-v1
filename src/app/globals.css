@@ -60,6 +60,13 @@ body {
   }
 }
 
+/* Hide results panel on mobile until there is something to show */
+@media (max-width: 859px) {
+  .results-panel-empty {
+    display: none;
+  }
+}
+
 /* Button press & hover animation */
 .btn-press {
   transition: transform 0.12s ease, box-shadow 0.15s ease,
