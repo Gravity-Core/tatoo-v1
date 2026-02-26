@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { analyzeTattooImages } from "@/lib/analyze";
 import { calculatePrice } from "@/lib/calculate-price";
 import { loadPricingConfig } from "@/lib/pricing-store";
+import { signBookingToken } from "@/lib/booking-token";
 import type { AnalyzeRequest, AnalyzeResponse } from "@/lib/types";
 
 // Simple in-memory rate limiting (resets on server restart — fine for demo)
@@ -45,7 +46,8 @@ export async function POST(req: NextRequest) {
       loadPricingConfig(),
     ]);
     const estimate = calculatePrice(analysis, placement, widthCm, heightCm, pricingConfig);
-    const response: AnalyzeResponse = { analysis, estimate };
+    const bookingToken = signBookingToken(estimate.estimatedPrice);
+    const response: AnalyzeResponse = { analysis, estimate, bookingToken };
     return NextResponse.json(response);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
