@@ -72,14 +72,21 @@ export async function sendEmail(
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const attachments = (params.images ?? []).map((dataUrl, i) => {
-      const [header, data] = dataUrl.split(",");
-      const ext = header.includes("png") ? "png" : "jpg";
-      return {
-        filename: `tatuaj-referinta-${i + 1}.${ext}`,
-        content: Buffer.from(data, "base64"),
-      };
-    });
+    const attachments = (params.images ?? [])
+      .map((dataUrl, i) => {
+        const commaIdx = dataUrl.indexOf(",");
+        if (commaIdx === -1) return null;
+        const header = dataUrl.slice(0, commaIdx);
+        const data = dataUrl.slice(commaIdx + 1);
+        if (!data) return null;
+        const mime = header.split(":")[1]?.split(";")[0] ?? "";
+        const ext = mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
+        return {
+          filename: `tatuaj-referinta-${i + 1}.${ext}`,
+          content: Buffer.from(data, "base64"),
+        };
+      })
+      .filter((a): a is NonNullable<typeof a> => a !== null);
 
     const { error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev",

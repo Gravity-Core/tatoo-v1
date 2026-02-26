@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
 
   const { bookingToken, images, name, phone, estimate, analysis, placement, widthCm, heightCm } = body;
 
+  const sanitizedImages = (Array.isArray(images) ? images : [])
+    .slice(0, 5)
+    .filter((img): img is string => typeof img === "string" && img.startsWith("data:image/"));
+
   if (!name?.trim() || !phone?.trim() || !bookingToken) {
     return NextResponse.json({ error: "Lipsesc câmpuri obligatorii." }, { status: 400 });
   }
@@ -27,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   const config = await loadNotificationConfig();
-  const params = { name: name.trim(), phone: phone.trim(), estimate, analysis, placement, widthCm, heightCm, images };
+  const params = { name: name.trim(), phone: phone.trim(), estimate, analysis, placement, widthCm, heightCm, images: sanitizedImages };
 
   // Send both notifications independently
   const [emailSent, whatsappSent] = await Promise.all([
