@@ -15,6 +15,11 @@ interface PricingConfig {
   complexityMultiplier: number;
 }
 
+interface NotificationConfig {
+  recipientEmail: string;
+  whatsappNumber: string;
+}
+
 const inputStyle: React.CSSProperties = {
   height: 40,
   borderRadius: 8,
@@ -34,6 +39,8 @@ export default function AdminPage() {
   const [config, setConfig] = useState<PricingConfig | null>(null);
   const [authError, setAuthError] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [notifConfig, setNotifConfig] = useState<NotificationConfig>({ recipientEmail: "", whatsappNumber: "" });
+  const [notifSaveStatus, setNotifSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   useEffect(() => {
     const saved = sessionStorage.getItem("admin_pw");
@@ -58,6 +65,13 @@ export default function AdminPage() {
     setConfig(data);
     setAuthed(true);
     sessionStorage.setItem("admin_pw", pw);
+    const notifRes = await fetch("/api/admin/notifications", {
+      headers: { "x-admin-password": pw },
+    });
+    if (notifRes.ok) {
+      const notifData = await notifRes.json();
+      setNotifConfig(notifData);
+    }
   }
 
   async function handleSave() {
@@ -79,6 +93,22 @@ export default function AdminPage() {
     } else {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus("idle"), 3000);
+    }
+  }
+
+  async function handleNotifSave() {
+    setNotifSaveStatus("saving");
+    const res = await fetch("/api/admin/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify(notifConfig),
+    });
+    if (res.ok) {
+      setNotifSaveStatus("saved");
+      setTimeout(() => setNotifSaveStatus("idle"), 2500);
+    } else {
+      setNotifSaveStatus("error");
+      setTimeout(() => setNotifSaveStatus("idle"), 3000);
     }
   }
 
@@ -411,6 +441,53 @@ export default function AdminPage() {
                 <span style={{ color: "#65636d", fontSize: "0.875rem" }}>per punct</span>
               </div>
             </Field>
+          </div>
+        </Card>
+
+        <Card
+          title="Notificări"
+          subtitle="Date de contact pentru trimiterea rezervărilor primite"
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <Field label="Email destinatar" hint="Adresa la care vor fi trimise cererile de programare">
+              <input
+                type="email"
+                value={notifConfig.recipientEmail}
+                onChange={(e) => setNotifConfig({ ...notifConfig, recipientEmail: e.target.value })}
+                placeholder="ex. contact@studio.ro"
+                style={inputStyle}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#eae7ec")}
+              />
+            </Field>
+            <Field label="Număr WhatsApp" hint="Include prefixul internațional, ex. +40721123456">
+              <input
+                type="tel"
+                value={notifConfig.whatsappNumber}
+                onChange={(e) => setNotifConfig({ ...notifConfig, whatsappNumber: e.target.value })}
+                placeholder="+40721123456"
+                style={{ ...inputStyle, width: 200 }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#0090ff")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#eae7ec")}
+              />
+            </Field>
+            <button
+              onClick={handleNotifSave}
+              disabled={notifSaveStatus === "saving"}
+              style={{
+                alignSelf: "flex-start",
+                height: 40, padding: "0 20px", borderRadius: 10,
+                backgroundColor:
+                  notifSaveStatus === "saved" ? "#16a34a" :
+                  notifSaveStatus === "error" ? "#dc2626" : "#0090ff",
+                color: "#fff", fontWeight: 600, fontSize: "0.875rem",
+                border: "none", cursor: "pointer", transition: "background-color 0.2s",
+              }}
+            >
+              {notifSaveStatus === "saving" ? "Salvez..." :
+               notifSaveStatus === "saved" ? "✓ Salvat" :
+               notifSaveStatus === "error" ? "Eroare" : "Salvează notificări"}
+            </button>
           </div>
         </Card>
 
