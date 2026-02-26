@@ -83,6 +83,7 @@ export interface NotificationConfig {
 
 export interface BookingRequest {
   bookingToken: string;
+  images?: string[];        // base64 data URLs
   name: string;
   phone: string;
   estimate: PriceEstimate;

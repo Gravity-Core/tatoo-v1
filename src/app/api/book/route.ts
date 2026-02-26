@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Cerere invalidă." }, { status: 400 });
   }
 
-  const { bookingToken, name, phone, estimate, analysis, placement, widthCm, heightCm } = body;
+  const { bookingToken, images, name, phone, estimate, analysis, placement, widthCm, heightCm } = body;
 
   if (!name?.trim() || !phone?.trim() || !bookingToken) {
     return NextResponse.json({ error: "Lipsesc câmpuri obligatorii." }, { status: 400 });
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   }
 
   const config = await loadNotificationConfig();
-  const params = { name: name.trim(), phone: phone.trim(), estimate, analysis, placement, widthCm, heightCm };
+  const params = { name: name.trim(), phone: phone.trim(), estimate, analysis, placement, widthCm, heightCm, images };
 
   // Send both notifications independently
   const [emailSent, whatsappSent] = await Promise.all([

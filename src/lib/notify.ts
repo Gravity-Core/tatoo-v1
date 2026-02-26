@@ -25,6 +25,7 @@ interface NotifyParams {
   placement: BodyPlacement;
   widthCm: number;
   heightCm: number;
+  images?: string[];        // base64 data URLs
 }
 
 export function buildEmailHtml(p: NotifyParams): string {
@@ -70,11 +71,22 @@ export async function sendEmail(
   try {
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const attachments = (params.images ?? []).map((dataUrl, i) => {
+      const [header, data] = dataUrl.split(",");
+      const ext = header.includes("png") ? "png" : "jpg";
+      return {
+        filename: `tatuaj-referinta-${i + 1}.${ext}`,
+        content: Buffer.from(data, "base64"),
+      };
+    });
+
     const { error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev",
       to,
       subject: `Cerere nouă de programare — ${params.name}`,
       html: buildEmailHtml(params),
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
     if (error) { console.error("Resend error:", error); return false; }
     return true;

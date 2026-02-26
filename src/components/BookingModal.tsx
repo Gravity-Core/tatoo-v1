@@ -7,10 +7,11 @@ interface Props {
   placement: BodyPlacement;
   widthCm: number;
   heightCm: number;
+  images?: string[];
   onClose: () => void;
 }
 
-export default function BookingModal({ result, placement, widthCm, heightCm, onClose }: Props) {
+export default function BookingModal({ result, placement, widthCm, heightCm, images, onClose }: Props) {
   const [name, setName]       = useState("");
   const [phone, setPhone]     = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -26,6 +27,7 @@ export default function BookingModal({ result, placement, widthCm, heightCm, onC
     try {
       const payload: BookingRequest = {
         bookingToken: result.bookingToken,
+        images,
         name: name.trim(),
         phone: phone.trim(),
         estimate: result.estimate,

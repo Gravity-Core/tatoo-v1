@@ -399,6 +399,7 @@ export default function Home() {
           placement={placement as BodyPlacement}
           widthCm={parseFloat(width) || 0}
           heightCm={parseFloat(height) || 0}
+          images={images}
           onClose={() => setBookingOpen(false)}
         />
       )}
