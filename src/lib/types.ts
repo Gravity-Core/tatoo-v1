@@ -73,4 +73,27 @@ export interface AnalyzeRequest {
 export interface AnalyzeResponse {
   analysis: AIAnalysis;
   estimate: PriceEstimate;
+  bookingToken: string;
+}
+
+export interface NotificationConfig {
+  recipientEmail: string;
+  whatsappNumber: string; // e.g. "+40721123456"
+}
+
+export interface BookingRequest {
+  bookingToken: string;
+  name: string;
+  phone: string;
+  estimate: PriceEstimate;
+  analysis: AIAnalysis;
+  placement: BodyPlacement;
+  widthCm: number;
+  heightCm: number;
+}
+
+export interface BookingResponse {
+  success: boolean;
+  emailSent: boolean;
+  whatsappSent: boolean;
 }
