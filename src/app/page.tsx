@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import ImageUpload from "@/components/ImageUpload";
+import BookingModal from "@/components/BookingModal";
 import { useWordPressBridge } from "./useWordPressBridge";
 import type { AnalyzeResponse, BodyPlacement } from "@/lib/types";
 
@@ -40,6 +41,7 @@ export default function Home() {
   const [step, setStep]           = useState<Step>("input");
   const [result, setResult]       = useState<AnalyzeResponse | null>(null);
   const [error, setError]         = useState("");
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   const { scrollToTop, sendEvent } = useWordPressBridge();
 
@@ -97,6 +99,7 @@ export default function Home() {
     setImages([]); setSizePreset(""); setPlacement("");
     setWidth(""); setHeight(""); setNotes("");
     setConfirmed(false); setResult(null); setStep("input"); setError("");
+    setBookingOpen(false);
   }
 
   return (
@@ -358,7 +361,7 @@ export default function Home() {
 
             {/* Previous result while form is being refilled */}
             {step === "input" && result && (
-              <PricePanel result={result} onReset={reset} />
+              <PricePanel result={result} onReset={reset} onBook={() => setBookingOpen(true)} />
             )}
 
             {/* Loading */}
@@ -383,19 +386,29 @@ export default function Home() {
 
             {/* Results */}
             {step === "results" && result && (
-              <PricePanel result={result} onReset={reset} />
+              <PricePanel result={result} onReset={reset} onBook={() => setBookingOpen(true)} />
             )}
           </div>
         </div>
 
       </div>
+
+      {bookingOpen && result && (
+        <BookingModal
+          result={result}
+          placement={placement as BodyPlacement}
+          widthCm={parseFloat(width) || 0}
+          heightCm={parseFloat(height) || 0}
+          onClose={() => setBookingOpen(false)}
+        />
+      )}
     </main>
   );
 }
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
-function PricePanel({ result, onReset }: { result: AnalyzeResponse; onReset: () => void }) {
+function PricePanel({ result, onReset, onBook }: { result: AnalyzeResponse; onReset: () => void; onBook: () => void }) {
   const { estimate, analysis } = result;
   return (
     <div className="animate-fade-in">
@@ -445,20 +458,21 @@ function PricePanel({ result, onReset }: { result: AnalyzeResponse; onReset: () 
       </p>
 
       {/* CTA */}
-      <a
-        href="#contact"
+      <button
+        onClick={onBook}
         className="flex items-center justify-center font-bold btn-press"
         style={{
-          height: 46, borderRadius: 10,
+          height: 46, borderRadius: 10, width: "100%",
           backgroundColor: "#0090ff", color: "#fff",
           fontSize: "0.8rem", letterSpacing: "0.05em",
-          textDecoration: "none", transition: "background-color 0.15s",
+          border: "none", cursor: "pointer",
+          transition: "background-color 0.15s",
         }}
         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0070d4")}
         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0090ff")}
       >
         PROGRAMEAZĂ CONSULTAȚIA
-      </a>
+      </button>
 
       {/* Reset */}
       <button
