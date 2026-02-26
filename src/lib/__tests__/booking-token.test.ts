@@ -27,11 +27,18 @@ describe("booking-token", () => {
   });
 
   it("rejects an expired token", () => {
-    const past = Date.now() - 31 * 60 * 1000; // 31 minutes ago
-    const payload = JSON.stringify({ price: PRICE, exp: past + 30 * 60 * 1000, iat: past });
-    const { createHmac } = require("crypto");
-    const hash = createHmac("sha256", SECRET).update(payload).digest("hex");
-    const token = Buffer.from(JSON.stringify({ payload, hash })).toString("base64url");
+    const realNow = Date.now();
+    // Sign a token 31 minutes in the future from the past perspective
+    jest.spyOn(Date, "now").mockReturnValue(realNow - 31 * 60 * 1000);
+    const token = signBookingToken(PRICE, SECRET);
+    jest.spyOn(Date, "now").mockReturnValue(realNow); // restore
     expect(verifyBookingToken(token, PRICE, SECRET)).toBe(false);
+  });
+
+  it("throws when secret is missing", () => {
+    const originalEnv = process.env.BOOKING_TOKEN_SECRET;
+    delete process.env.BOOKING_TOKEN_SECRET;
+    expect(() => signBookingToken(PRICE)).toThrow("BOOKING_TOKEN_SECRET is not set");
+    process.env.BOOKING_TOKEN_SECRET = originalEnv;
   });
 });
